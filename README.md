@@ -22,7 +22,7 @@ This is an independent community project. It is not affiliated with or endorsed 
 ## Install
 
 ```powershell
-git clone https://github.com/<owner>/naukri-career-mcp.git naukri-career-mcp
+git clone https://github.com/Auchit-Sawai/naukri-career-mcp.git naukri-career-mcp
 cd naukri-career-mcp/python
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1

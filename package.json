@@ -1,0 +1,25 @@
+{
+  "name": "naukri-career-mcp",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Local-first Naukri Career MCP server with optional DeepSeek Harness bundle",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh-mcp-client": "^0.2.2-rc.1",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}
+

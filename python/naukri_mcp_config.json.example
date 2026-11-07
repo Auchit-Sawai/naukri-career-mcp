@@ -1,0 +1,6 @@
+{
+  "database_path": "naukri_career.db",
+  "headless": true,
+  "browser_profile_dir": "~/.naukri_mcp_browser"
+}
+

@@ -1,0 +1,18 @@
+- insert:
+    - id: naukri-mcp-client
+      name: "@deepseek-ai/dsh-mcp-client"
+      config:
+        transport: stdio
+        serverName: "naukri-career"
+        command: "python"
+        args: ["-m", "naukri_mcp.server"]
+        cwd: "<absolute-path-to-repository>/python"
+        toolCallTimeoutMs: 60000
+        failOnStartupError: false
+        maxInstructionBytes: 32768
+        reconnect:
+          enabled: true
+          initialDelayMs: 500
+          maxDelayMs: 30000
+          maxAttempts: 10
+
