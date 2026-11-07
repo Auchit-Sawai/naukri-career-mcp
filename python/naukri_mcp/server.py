@@ -418,13 +418,10 @@ class NaukriMCPServer:
 
         @self.server.tool(
             name="naukri_login",
-            description="Open no login flow; use the visible browser and sign in yourself."
+            description="Explain that users must sign in through their own visible browser."
         )
         @tool_wrapper
-        async def naukri_login(
-            email: str,
-            password: str
-        ) -> str:
+        async def naukri_login() -> str:
             # Do not accept credentials through model tool arguments. Use the
             # visible browser login flow so secrets are entered directly by
             # the user and the persistent browser profile stores the session.
@@ -446,10 +443,7 @@ class NaukriMCPServer:
             description="Check the saved Naukri session without submitting credentials."
         )
         @tool_wrapper
-        async def naukri_ensure_session(
-            email: Optional[str] = None,
-            password: Optional[str] = None
-        ) -> str:
+        async def naukri_ensure_session() -> str:
             # Session check only; never pass credentials into a model-facing tool.
             return await self.profile_tools.ensure_valid_session()
 

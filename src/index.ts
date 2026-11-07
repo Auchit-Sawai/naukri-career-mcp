@@ -266,9 +266,7 @@ export const toolDefinitions = [
   {
     name: "naukri_login",
     description: "Explain that login must be completed by the user in a visible browser; never collect credentials",
-    schema: z.object({
-      confirm: z.boolean().optional().describe("Unused. Credentials are never accepted by this tool.")
-    }),
+    schema: z.object({}),
     handler: naukriLogin
   },
   {
@@ -280,9 +278,7 @@ export const toolDefinitions = [
   {
     name: "naukri_ensure_session",
     description: "Check the existing session without accepting credentials",
-    schema: z.object({
-      confirm: z.boolean().optional().describe("Unused. This tool only checks the existing session.")
-    }),
+    schema: z.object({}),
     handler: naukriEnsureSession
   },
   {

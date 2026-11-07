@@ -6,9 +6,7 @@ export const naukriEnsureSession: ToolHandler = async (args, context) => {
     throw new Error("MCP client not available. Ensure the naukri-career MCP server is running.");
   }
 
-  const result = await mcp.callTool("naukri_ensure_session", {
-
-  });
+  const result = await mcp.callTool("naukri_ensure_session", {});
 
   return result.content[0].text;
 };
