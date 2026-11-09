@@ -49,7 +49,7 @@ class ApplicationTools:
 
         app_id = await self.db.create_application(app_data)
 
-        return f"âœ… Application tracked (ID: {app_id})\n" \
+        return f"✅ Application tracked (ID: {app_id})\n" \
                f"   {job_title} at {company}\n" \
                f"   Status: {status} | Match Score: {match_score or 'N/A'}"
 
@@ -73,9 +73,9 @@ class ApplicationTools:
         success = await self.db.update_application(application_id, updates)
 
         if not success:
-            return f"âŒ Failed to update application {application_id}"
+            return f"❌ Failed to update application {application_id}"
 
-        result_lines = [f"âœ… Application {application_id} updated to: {status}"]
+        result_lines = [f"✅ Application {application_id} updated to: {status}"]
 
         # Add interview round if provided
         if interview_round is not None:
@@ -137,19 +137,19 @@ class ApplicationTools:
 
         for app in applications:
             status_emoji = {
-                "applied": "ðŸ“",
-                "screening": "ðŸ”",
-                "interview": "ðŸŽ¤",
-                "offer": "ðŸŽ‰",
-                "rejected": "âŒ",
-                "withdrawn": "â†©ï¸"
-            }.get(app["status"], "ðŸ“‹")
+                "applied": "📝",
+                "screening": "🔍",
+                "interview": "🎤",
+                "offer": "🎉",
+                "rejected": "❌",
+                "withdrawn": "↩️"
+            }.get(app["status"], "📋")
 
             lines.append(f"{status_emoji} [{app['id']}] {app['job_title']} at {app['company']}")
-            lines.append(f"   ðŸ“ {app['location'] or 'N/A'} | ðŸ“… Applied: {app['applied_date'][:10]}")
+            lines.append(f"   📍 {app['location'] or 'N/A'} | 📅 Applied: {app['applied_date'][:10]}")
             lines.append(f"   Status: {app['status'].upper()} | Match: {app['match_score'] or 'N/A'}%")
             if app["notes"]:
-                lines.append(f"   ðŸ“ {app['notes'][:100]}{'...' if len(app['notes']) > 100 else ''}")
+                lines.append(f"   📝 {app['notes'][:100]}{'...' if len(app['notes']) > 100 else ''}")
             lines.append("")
 
         return "\n".join(lines)
@@ -173,9 +173,9 @@ class ApplicationTools:
             count = stats["by_status"].get(status, 0)
             if count > 0:
                 emoji = {
-                    "applied": "ðŸ“", "screening": "ðŸ”", "interview": "ðŸŽ¤",
-                    "offer": "ðŸŽ‰", "rejected": "âŒ", "withdrawn": "â†©ï¸"
-                }.get(status, "ðŸ“‹")
+                    "applied": "📝", "screening": "🔍", "interview": "🎤",
+                    "offer": "🎉", "rejected": "❌", "withdrawn": "↩️"
+                }.get(status, "📋")
                 lines.append(f"  {emoji} {status.capitalize()}: {count}")
 
         lines.append("")
@@ -254,4 +254,4 @@ class ApplicationTools:
                             writer.writerows(history)
                 exported_files.append(str(filepath))
 
-        return f"âœ… Data exported to {output_dir}:\n" + "\n".join(f"  â€¢ {f}" for f in exported_files)
+        return f"✅ Data exported to {output_dir}:\n" + "\n".join(f"  • {f}" for f in exported_files)

@@ -30,3 +30,4 @@ Thumbs.db
 .naukri_session/
 .naukri_mcp_browser/
 
+node_modules/

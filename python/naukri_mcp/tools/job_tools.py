@@ -265,9 +265,9 @@ class JobTools:
 
         for i, job in enumerate(jobs, 1):
             lines.append(f"{i}. {job.get('title', 'N/A')} at {job.get('company', 'N/A')}")
-            lines.append(f"   ðŸ“ {job.get('location', 'N/A')} | ðŸ’¼ {job.get('experience', 'N/A')} | ðŸ’° {job.get('salary', 'Not disclosed')}")
+            lines.append(f"   📍 {job.get('location', 'N/A')} | 💼 {job.get('experience', 'N/A')} | 💰 {job.get('salary', 'Not disclosed')}")
             if job.get("url"):
-                lines.append(f"   ðŸ”— {job['url']}")
+                lines.append(f"   🔗 {job['url']}")
             lines.append("")
 
         return "\n".join(lines)
@@ -317,7 +317,7 @@ class JobTools:
             f"RESUME-JOB MATCH ANALYSIS",
             "=" * 60,
             f"Job: {job.get('title', 'N/A')} at {job.get('company', 'N/A')}",
-            f"Match Score: {score}/100 {'ðŸŸ¢' if score >= 80 else 'ðŸŸ¡' if score >= 60 else 'ðŸ”´'}",
+            f"Match Score: {score}/100 {'🟢' if score >= 80 else '🟡' if score >= 60 else '🔴'}",
             ""
         ]
 
@@ -331,20 +331,20 @@ class JobTools:
         lines.append("")
 
         lines.append("--- OTHER FACTORS ---")
-        lines.append(f"Experience Match: {'âœ“' if details['experience_match'] else 'âœ—'}")
-        lines.append(f"Role Match: {'âœ“' if details['role_match'] else 'âœ—'}")
-        lines.append(f"Location Match: {'âœ“' if details['location_match'] else 'âœ—'}")
+        lines.append(f"Experience Match: {'✓' if details['experience_match'] else '✗'}")
+        lines.append(f"Role Match: {'✓' if details['role_match'] else '✗'}")
+        lines.append(f"Location Match: {'✓' if details['location_match'] else '✗'}")
         lines.append(f"Keyword Matches: {', '.join(details['keyword_matches'][:8])}")
         lines.append("")
 
         if score >= 80:
-            lines.append("ðŸŽ¯ EXCELLENT MATCH - Strongly recommended to apply")
+            lines.append("🎯 EXCELLENT MATCH - Strongly recommended to apply")
         elif score >= 60:
-            lines.append("ðŸ‘ GOOD MATCH - Worth applying with tailored resume")
+            lines.append("👍 GOOD MATCH - Worth applying with tailored resume")
         elif score >= 40:
-            lines.append("âš ï¸  MODERATE MATCH - Consider if you meet key requirements")
+            lines.append("⚠️  MODERATE MATCH - Consider if you meet key requirements")
         else:
-            lines.append("âŒ LOW MATCH - Significant gaps in requirements")
+            lines.append("❌ LOW MATCH - Significant gaps in requirements")
 
         return "\n".join(lines)
 
@@ -364,11 +364,11 @@ class JobTools:
             score = match["score"]
             details = match["details"]
 
-            lines.append(f"{i}. {job.get('title', 'N/A')} at {job.get('company', 'N/A')} â€” Score: {score}/100")
-            lines.append(f"   ðŸ“ {job.get('location', 'N/A')} | ðŸ’¼ {job.get('experience', 'N/A')} | ðŸ’° {job.get('salary', 'Not disclosed')}")
-            lines.append(f"   âœ“ Matched: {len(details['skills_match'])} skills | âœ— Missing: {len(details['skills_missing'])} skills")
+            lines.append(f"{i}. {job.get('title', 'N/A')} at {job.get('company', 'N/A')} — Score: {score}/100")
+            lines.append(f"   📍 {job.get('location', 'N/A')} | 💼 {job.get('experience', 'N/A')} | 💰 {job.get('salary', 'Not disclosed')}")
+            lines.append(f"   ✓ Matched: {len(details['skills_match'])} skills | ✗ Missing: {len(details['skills_missing'])} skills")
             if job.get("url"):
-                lines.append(f"   ðŸ”— {job['url']}")
+                lines.append(f"   🔗 {job['url']}")
             lines.append("")
 
         if not matches:

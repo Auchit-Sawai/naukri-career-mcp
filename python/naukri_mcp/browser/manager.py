@@ -104,6 +104,66 @@ class BrowserManager:
             self._logged_in = False
             return False
 
+    async def login_with_otp(self, phone: str, otp: Optional[str] = None) -> Dict[str, Any]:
+        """Login to Naukri.com using phone number and OTP.
+        
+        Args:
+            phone: 10-digit phone number (e.g., "9876543210")
+            otp: OTP code if already received. If None, waits for user input via browser.
+        """
+        if not self.page:
+            raise RuntimeError("Browser not initialized")
+
+        try:
+            logger.info("Navigating to Naukri login...")
+            await self.page.goto("https://www.naukri.com/nlogin/login", wait_until="networkidle")
+
+            # Wait for login form
+            await self.page.wait_for_selector("#usernameField", timeout=10000)
+
+            # Click "Login with OTP" link/button
+            try:
+                await self.page.click("text=Login with OTP", timeout=5000)
+            except Exception:
+                try:
+                    await self.page.click("text=OTP", timeout=3000)
+                except Exception:
+                    logger.warning("Could not find 'Login with OTP' button, trying alternative")
+                    await self.page.click("a[href*='otp'], button:has-text('OTP')", timeout=3000)
+
+            # Wait for OTP form
+            await self.page.wait_for_selector("input[placeholder*='mobile'], input[placeholder*='phone'], input[name='mobile'], #mobileNumber", timeout=10000)
+
+            # Fill phone number
+            phone_selector = "input[placeholder*='mobile'], input[placeholder*='phone'], input[name='mobile'], #mobileNumber"
+            await self.page.fill(phone_selector, phone)
+
+            # Click "Get OTP" / "Send OTP" button
+            await self.page.click("button:has-text('Get OTP'), button:has-text('Send OTP'), button:has-text('Submit'), button[type='submit']", timeout=5000)
+
+            # Wait for OTP input field to appear
+            await self.page.wait_for_selector("input[placeholder*='OTP'], input[placeholder*='otp'], input[name='otp'], input[maxlength='6']", timeout=10000)
+
+            if otp:
+                # Use provided OTP
+                await self.page.fill("input[placeholder*='OTP'], input[placeholder*='otp'], input[name='otp'], input[maxlength='6']", otp)
+                await self.page.click("button:has-text('Verify'), button:has-text('Submit'), button[type='submit']", timeout=5000)
+            else:
+                # Wait for user to enter OTP manually in the browser (headless=False mode)
+                logger.info("Waiting for user to enter OTP in browser...")
+                await self.page.wait_for_url("**/mnjuser/**", timeout=120000)
+
+            # Wait for redirect to dashboard
+            await self.page.wait_for_url("**/mnjuser/**", timeout=30000)
+
+            self._logged_in = True
+            logger.info("OTP login successful")
+            return {"success": True, "message": "Logged in successfully with OTP"}
+
+        except Exception as e:
+            logger.error(f"OTP login failed: {e}")
+            return {"success": False, "error": str(e)}
+
     async def check_session_status(self) -> Dict[str, Any]:
         """
         Check session status and detect expiry.
@@ -416,6 +476,18 @@ class BrowserManager:
 
         return completeness
 
+    async def _is_challenge_page(self, content: str) -> bool:
+        """True only for an access-denied / bot-challenge page, not a normal page."""
+        title = (await self.page.title()).lower() if self.page else ""
+        text = content.lower()
+        return (
+            "access denied" in title
+            or "just a moment" in title
+            or "attention required" in title
+            or "verify you are human" in text
+            or "cf-challenge" in text
+        )
+
     async def search_jobs(self, criteria: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Search jobs on Naukri using validated selectors."""
         if not self.page:
@@ -442,7 +514,9 @@ class BrowserManager:
 
         # Check for Cloudflare challenge
         content = await self.page.content()
-        if "Access Denied" in content or "cloudflare" in content.lower():
+        # Detect the challenge page itself; normal Naukri pages also load Cloudflare scripts,
+        # so matching the word "cloudflare" anywhere gave false "blocked" results.
+        if await self._is_challenge_page(content):
             logger.warning("Cloudflare challenge detected on search page")
             return [{"error": "Cloudflare challenge - search page blocked"}]
 
@@ -526,7 +600,9 @@ class BrowserManager:
 
         # Check for Cloudflare
         content = await self.page.content()
-        if "Access Denied" in content or "cloudflare" in content.lower():
+        # Detect the challenge page itself; normal Naukri pages also load Cloudflare scripts,
+        # so matching the word "cloudflare" anywhere gave false "blocked" results.
+        if await self._is_challenge_page(content):
             return {"error": "Cloudflare challenge - job detail page blocked"}
 
         job_data = await self.page.evaluate("""() => {

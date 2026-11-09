@@ -431,6 +431,19 @@ class NaukriMCPServer:
             )
 
         @self.server.tool(
+            name="naukri_login_with_otp",
+            description=(
+                "Start a phone + OTP login in the visible browser. Requests the OTP, then waits "
+                "(up to 2 min) for the user to type it in the browser. The OTP is never passed through the model."
+            )
+        )
+        @tool_wrapper
+        async def naukri_login_with_otp(phone: str) -> str:
+            # Only the phone number goes through the tool; the user enters the OTP
+            # directly in the browser (requires headless=false in the config).
+            return await self.profile_tools.login_with_otp(phone, None)
+
+        @self.server.tool(
             name="naukri_check_session",
             description="Check Naukri session status and detect expiry. Returns session validity and recommended action."
         )

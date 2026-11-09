@@ -208,19 +208,19 @@ class ResumeTools:
 
     def _parse_skills_text(self, text: str) -> List[str]:
         """Parse skills from text with improved segmentation."""
-
+        
         # First, normalize the text
         text = text.replace('\n', ' ').replace('\r', ' ')
-
+        
         # Split by common skill delimiters, but be careful with colons in skill names
         # Pattern: split on commas, semicolons, pipes, bullets, newlines
         # But NOT on colons that are part of skill names like "C++", "C#", "AI/ML"
         # Split on: comma, semicolon, pipe, bullet, newline
-        # Keep together: items separated by "â€¢", "-", "*" at start of line
-
+        # Keep together: items separated by "•", "-", "*" at start of line
+        
         # First split by newlines and bullets
-        parts = re.split(r'[\nâ€¢\-*]', text)
-
+        parts = re.split(r'[\n•\-*]', text)
+        
         skills = []
         for part in parts:
             # Further split by commas, semicolons, pipes
@@ -233,8 +233,8 @@ class ResumeTools:
                 if sp and len(sp) > 1 and len(sp) < 100:
                     # Filter out section headers and noise
                     sp_lower = sp.lower()
-                    if not any(sp_lower.startswith(prefix) for prefix in
-                               ['skill', 'technolog', 'competenc', 'tool', 'language',
+                    if not any(sp_lower.startswith(prefix) for prefix in 
+                               ['skill', 'technolog', 'competenc', 'tool', 'language', 
                                 'summary', 'profile', 'objective', 'experience', 'employment',
                                 'education', 'certification', 'project', 'personal', 'contact',
                                 'linkedin', 'phone', 'email', 'address', 'location',
@@ -244,7 +244,7 @@ class ResumeTools:
                         sp = sp.strip('.,;:')
                         if sp and len(sp) > 1:
                             skills.append(sp)
-
+        
         # Deduplicate while preserving order
         seen = set()
         unique_skills = []
@@ -253,7 +253,7 @@ class ResumeTools:
             if skill_lower not in seen:
                 seen.add(skill_lower)
                 unique_skills.append(skill)
-
+        
         # Post-process: merge skills that were incorrectly split
         # e.g., "Business Analysis" + "& Delivery" -> "Business Analysis & Delivery"
         merged_skills = []
@@ -271,7 +271,7 @@ class ResumeTools:
                     continue
             merged_skills.append(skill)
             i += 1
-
+        
         return merged_skills[:50]
 
     def _parse_experience_text(self, text: str) -> List[Dict]:
@@ -301,14 +301,14 @@ class ResumeTools:
                 if any(kw in line_lower for kw in ['inc', 'ltd', 'corp', 'company', 'technologies', 'solutions', 'services', 'bank', 'capital', 'financial']):
                     entry["company"] = line
                 # Check for duration patterns
-                elif re.search(r'\d{4}\s*[-â€“to]\s*(\d{4}|present|current)', line_lower):
+                elif re.search(r'\d{4}\s*[-–to]\s*(\d{4}|present|current)', line_lower):
                     entry["duration"] = line
-                elif re.search(r'\d{1,2}/\d{4}\s*[-â€“to]\s*(\d{1,2}/\d{4}|present|current)', line_lower):
+                elif re.search(r'\d{1,2}/\d{4}\s*[-–to]\s*(\d{1,2}/\d{4}|present|current)', line_lower):
                     entry["duration"] = line
-                elif re.search(r'(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{4}\s*[-â€“to]\s*(\w{3,9}\s+\d{4}|present|current)', line_lower):
+                elif re.search(r'(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{4}\s*[-–to]\s*(\w{3,9}\s+\d{4}|present|current)', line_lower):
                     entry["duration"] = line
-                elif line_lower.startswith(('â€¢', '-', '*')):
-                    entry["achievements"].append(line.lstrip('â€¢-* '))
+                elif line_lower.startswith(('•', '-', '*')):
+                    entry["achievements"].append(line.lstrip('•-* '))
                 else:
                     entry["description"] += line + " "
 
@@ -355,20 +355,20 @@ class ResumeTools:
         """Calculate total years of experience with improved parsing."""
         total = 0
         current_year = 2025
-
+        
         for exp in experience:
             duration = exp.get("duration", "")
             if not duration:
                 continue
-
+            
             # Try multiple patterns for date ranges
             patterns = [
-                r'(\d{4})\s*[-â€“to]\s*(\d{4}|present|current)',  # 2020-2023, 2020 â€“ present
-                r'(\d{1,2}/\d{4})\s*[-â€“to]\s*(\d{1,2}/\d{4}|present|current)',  # 01/2020 - 03/2023
-                r'(\w{3,9}\s+\d{4})\s*[-â€“to]\s*(\w{3,9}\s+\d{4}|present|current)',  # Jan 2020 - Mar 2023
+                r'(\d{4})\s*[-–to]\s*(\d{4}|present|current)',  # 2020-2023, 2020 – present
+                r'(\d{1,2}/\d{4})\s*[-–to]\s*(\d{1,2}/\d{4}|present|current)',  # 01/2020 - 03/2023
+                r'(\w{3,9}\s+\d{4})\s*[-–to]\s*(\w{3,9}\s+\d{4}|present|current)',  # Jan 2020 - Mar 2023
                 r'(\d{4})\s*to\s*(\d{4}|present|current)',  # 2020 to 2023
             ]
-
+            
             for pattern in patterns:
                 matches = re.findall(pattern, duration, re.IGNORECASE)
                 for match in matches:
@@ -376,14 +376,14 @@ class ResumeTools:
                         start_str, end_str = match[0], match[1]
                         start_year = self._extract_year(start_str)
                         end_year = current_year if end_str.lower() in ['present', 'current'] else self._extract_year(end_str)
-
+                        
                         if start_year and end_year and end_year >= start_year:
                             total += (end_year - start_year)
                     except (ValueError, IndexError):
                         continue
-
+        
         return total
-
+    
     def _extract_year(self, date_str: str) -> Optional[int]:
         """Extract year from various date formats."""
         import re
@@ -478,7 +478,7 @@ class ResumeTools:
                 "match_score": tailored.get("match_score")
             })
 
-        return f"âœ… Tailored resume generated: {output_path}\n" \
+        return f"✅ Tailored resume generated: {output_path}\n" \
                f"Match Score: {tailored.get('match_score', 'N/A')}%\n" \
                f"Key modifications: {', '.join(tailored.get('modifications', {}).keys())}"
 
@@ -550,12 +550,12 @@ class ResumeTools:
 
         # Prioritized skills first
         for skill in mods.get("skills_prioritized", []):
-            lines.append(f"  âœ“ {skill}")
+            lines.append(f"  ✓ {skill}")
 
         # Other skills
         other_skills = [s for s in base.get("skills", []) if s not in mods.get("skills_prioritized", [])]
         for skill in other_skills[:10]:
-            lines.append(f"  â€¢ {skill}")
+            lines.append(f"  • {skill}")
 
         if mods.get("skills_added_from_experience"):
             lines.append("")
@@ -574,7 +574,7 @@ class ResumeTools:
             if exp.get("description"):
                 lines.append(f"  {exp['description'][:200]}")
             for ach in exp.get("achievements", [])[:3]:
-                lines.append(f"  â€¢ {ach}")
+                lines.append(f"  • {ach}")
 
         lines.extend([
             "",
@@ -590,7 +590,7 @@ class ResumeTools:
                 "--- CERTIFICATIONS ---"
             ])
             for cert in base["certifications"]:
-                lines.append(f"  â€¢ {cert}")
+                lines.append(f"  • {cert}")
 
         if base.get("projects"):
             lines.extend([
@@ -636,7 +636,7 @@ class ResumeTools:
                 "content": cover_letter
             })
 
-        return f"âœ… Cover letter generated: {output_path}\nTone: {tone}"
+        return f"✅ Cover letter generated: {output_path}\nTone: {tone}"
 
     def _generate_cover_letter_content(self, resume: Dict, job: Dict, tone: str) -> str:
         """Generate cover letter content."""
@@ -701,7 +701,7 @@ class ResumeTools:
         if key_achievements:
             lines.append("Key achievements relevant to this role:")
             for ach in key_achievements[:3]:
-                lines.append(f"â€¢ {ach}")
+                lines.append(f"• {ach}")
             lines.append("")
 
         lines.extend([

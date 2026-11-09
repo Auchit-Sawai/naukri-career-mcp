@@ -29,6 +29,7 @@ import { naukriParseResume } from "./tools/naukri_parse_resume.js";
 import { naukriGenerateTailoredResume } from "./tools/naukri_generate_tailored_resume.js";
 import { naukriGenerateCoverLetter } from "./tools/naukri_generate_cover_letter.js";
 import { naukriLogin } from "./tools/naukri_login.js";
+import { naukriLoginWithOtp } from "./tools/naukri_login_with_otp.js";
 import { naukriGetProfileCompleteness } from "./tools/naukri_get_profile_completeness.js";
 import { naukriExportData } from "./tools/naukri_export_data.js";
 import { naukriCheckSession } from "./tools/naukri_check_session.js";
@@ -270,6 +271,14 @@ export const toolDefinitions = [
     handler: naukriLogin
   },
   {
+    name: "naukri_login_with_otp",
+    description: "Start a phone + OTP login in the visible browser; the user types the OTP in the browser (never sent to the model).",
+    schema: z.object({
+      phone: z.string().regex(/^\d{10}$/, "10-digit phone number")
+    }),
+    handler: naukriLoginWithOtp
+  },
+  {
     name: "naukri_check_session",
     description: "Check Naukri session status and detect expiry. Returns session validity and recommended action.",
     schema: z.object({}),
@@ -280,15 +289,6 @@ export const toolDefinitions = [
     description: "Check the existing session without accepting credentials",
     schema: z.object({}),
     handler: naukriEnsureSession
-  },
-  {
-    name: "naukri_login",
-    description: "Login to Naukri.com (interactive, saves session for subsequent operations).",
-    schema: z.object({
-      email: z.string().email().describe("Naukri email"),
-      password: z.string().describe("Naukri password")
-    }),
-    handler: naukriLogin
   },
   {
     name: "naukri_get_profile_completeness",

@@ -235,16 +235,16 @@ class ProfileTools:
         if key_achievements:
             summary_parts.append("Key Achievements:")
             for ach in key_achievements[:3]:
-                summary_parts.append(f"â€¢ {ach}")
+                summary_parts.append(f"• {ach}")
             summary_parts.append("")
 
         summary_parts.append("Core Competencies:")
-        summary_parts.append("â€¢ " + ", ".join(top_skills))
+        summary_parts.append("• " + ", ".join(top_skills))
         summary_parts.append("")
 
         if domain_expertise:
             summary_parts.append("Domain Expertise:")
-            summary_parts.append("â€¢ " + ", ".join(domain_expertise))
+            summary_parts.append("• " + ", ".join(domain_expertise))
             summary_parts.append("")
 
         summary_parts.append(
@@ -307,7 +307,7 @@ class ProfileTools:
             "=" * 60,
             f"PROFILE OPTIMIZATION PROPOSAL (ID: {proposal_id})",
             "=" * 60,
-            "\nâš ï¸  REVIEW REQUIRED: Changes will NOT be applied without your explicit approval.",
+            "\n[WARN]  REVIEW REQUIRED: Changes will NOT be applied without your explicit approval.",
             "\n--- PROPOSED CHANGES ---\n"
         ]
 
@@ -320,9 +320,9 @@ class ProfileTools:
             elif isinstance(content, list):
                 for item in content[:10]:
                     if isinstance(item, dict):
-                        lines.append(f"  â€¢ {item.get('title', item.get('name', str(item)))}")
+                        lines.append(f"  • {item.get('title', item.get('name', str(item)))}")
                     else:
-                        lines.append(f"  â€¢ {item}")
+                        lines.append(f"  • {item}")
                 if len(content) > 10:
                     lines.append(f"  ... and {len(content) - 10} more")
             elif isinstance(content, dict):
@@ -363,7 +363,7 @@ class ProfileTools:
         # Apply each change
         if "headline" in proposed:
             result = await self.browser.update_profile_headline(proposed["headline"])
-            results.append(f"Headline: {'âœ“' if result['success'] else 'âœ—'} {result.get('message', result.get('error'))}")
+            results.append(f"Headline: {'✓' if result['success'] else '✗'} {result.get('message', result.get('error'))}")
             await self.db.save_profile_change_history({
                 "proposal_id": proposal_id,
                 "field_name": "headline",
@@ -375,7 +375,7 @@ class ProfileTools:
 
         if "summary" in proposed:
             result = await self.browser.update_profile_summary(proposed["summary"])
-            results.append(f"Summary: {'âœ“' if result['success'] else 'âœ—'} {result.get('message', result.get('error'))}")
+            results.append(f"Summary: {'✓' if result['success'] else '✗'} {result.get('message', result.get('error'))}")
             await self.db.save_profile_change_history({
                 "proposal_id": proposal_id,
                 "field_name": "summary",
@@ -386,7 +386,7 @@ class ProfileTools:
 
         if "skills" in proposed:
             result = await self.browser.update_profile_skills(proposed["skills"])
-            results.append(f"Skills: {'âœ“' if result['success'] else 'âœ—'} {result.get('message', result.get('error'))}")
+            results.append(f"Skills: {'✓' if result['success'] else '✗'} {result.get('message', result.get('error'))}")
             await self.db.save_profile_change_history({
                 "proposal_id": proposal_id,
                 "field_name": "skills",
@@ -441,9 +441,17 @@ class ProfileTools:
         """Login to Naukri."""
         result = await self.browser.login(email, password)
         if result["success"]:
-            return "âœ… Successfully logged in to Naukri.com"
+            return "[OK] Successfully logged in to Naukri.com"
         else:
-            return f"âŒ Login failed: {result.get('error')}"
+            return f"[FAIL] Login failed: {result.get('error')}"
+    
+    async def login_with_otp(self, phone: str, otp: Optional[str] = None) -> str:
+        """Login to Naukri using phone number and OTP."""
+        result = await self.browser.login_with_otp(phone, otp)
+        if result["success"]:
+            return "[OK] Successfully logged in to Naukri.com with OTP"
+        else:
+            return f"[FAIL] OTP Login failed: {result.get('error')}"
 
     async def get_profile_completeness(self, profile_url: Optional[str] = None) -> str:
         """Get profile completeness score."""

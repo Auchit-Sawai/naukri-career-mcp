@@ -66,6 +66,10 @@ Example `python/naukri_mcp_config.json`:
 
 Start with `naukri_check_session`. If you need to sign in, use the visible browser login flow and complete any CAPTCHA or verification yourself. Do not send your password to an AI model or store it in this repository. Then try read-only `naukri_get_profile` and `naukri_search_jobs`.
 
+Phone login: `naukri_login_with_otp` takes only your 10-digit phone number, asks Naukri to send the OTP, and waits up to 2 minutes for you to type the OTP in the visible browser (set `headless` to `false`). The OTP never passes through the AI model.
+
+If searches return "Cloudflare challenge", run with `headless` set to `false`; a visible browser is blocked far less often.
+
 Some Naukri pages may return access-denied responses or load incompletely in automation. Treat errors as inconclusive; do not bypass CAPTCHA or access controls.
 
 ## Privacy and safety
